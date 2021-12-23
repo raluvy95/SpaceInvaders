@@ -1,0 +1,5 @@
+# the files below contains secret data
+.env
+database.sqlite
+
+__pycache__

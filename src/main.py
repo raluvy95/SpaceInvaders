@@ -1,5 +1,11 @@
-import discord as discord
-import random as random
+import discord
+from random import randint
+from discord import user
+from discord.utils import get
+from dotenv import load_dotenv
+load_dotenv()
+from os import getenv
+from src.sqlite import get_all_scores, get_score, set_score
 
 client = discord.Client()
 playing = False
@@ -85,16 +91,24 @@ async def gamemap(message: discord.Message):
     enemyMove = False
     toSend = 'Now Playing: SPACE INVADERS :space_invader:\nUse arrows in reaction section to move and 🔴 to shoot.\nYou can also use ◀️ ▶️ to go to corners.\nYour score: '+str(score)+'\n'
 
-    if random.randint(0, 10) > 5:
-        for i in range(random.randint(1, 3)):
-            spawn_enemy(random.randint(0, 9))
+    if randint(0, 10) > 5:
+        for i in range(randint(1, 3)):
+            spawn_enemy(randint(0, 9))
     for i in range(1, len(room)+1):
         if stuff['enemy'] in room[i]:
             if i == 9:
-                await message.channel.send('GAME OVER :space_invader:\nYour score: '+str(score)+'\nBetter luck next time :blush:! Use $play to retry.')
                 await sent.delete()
+                high_score = await get_score(player)
+                if int(high_score[0]) < score:
+                    await set_score(player, str(score))
+                    await message.channel.send(f'GAME OVER :space_invader:\nYour score: {str(score)} **BEST SCORE!**\nBetter luck next time :blush:! Use $play to retry.')
+                else:
+                    await message.channel.send('GAME OVER :space_invader:\nYour score: '+str(score)+'\nBetter luck next time :blush:! Use $play to retry.')
                 playing = False
                 sent = discord.Message
+
+                score = 0
+
                 enemyPoses.clear()
                 bulletPoses.clear()
                 return
@@ -123,7 +137,7 @@ async def gamemap(message: discord.Message):
                 bulletPoses.append([i, room[i].index(stuff['bullet'])])
 
     for pos in enemyPoses:
-        if random.randint(0, 10) > 3:
+        if randint(0, 10) > 3:
             await down(room, stuff['empty'], stuff['enemy'], pos)
     for pos in bulletPoses:
         await up(room, stuff['empty'], stuff['bullet'], pos)
@@ -204,6 +218,19 @@ async def on_message(message: discord.Message):
                 await message.channel.send('Already playing!\nUse $stop to stop playing.')
             else:
                 await updater(message)
+        elif message.content.startswith('$leaderboard'):
+            list = await get_all_scores()
+            if len(list) < 1:
+                return await message.channel.send("The leaderboard is empty")
+            else:
+                embed = discord.Embed(title="Leaderboard")
+                embed.description = "This is the highest score"
+                for i in list:
+                    user_id = i[0]
+                    scores = i[1]
+                    embed.add_field(name=f"Score - {scores}", value=f"<@!{user_id}>")
+                return await message.channel.send(embed=embed)
+
 
 
 @client.event
@@ -245,4 +272,4 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                 await updater(message)
 
 
-client.run('Your bot token here')
+client.run(getenv("DISCORD_TOKEN"))
