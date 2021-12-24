@@ -1,3 +1,5 @@
 py-cord
 python-dotenv
 aiosqlite3
+colorama
+requests

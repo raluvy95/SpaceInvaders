@@ -99,7 +99,7 @@ async def gamemap(message: discord.Message):
             if i == 9:
                 await sent.delete()
                 high_score = await get_score(player)
-                if int(high_score[0]) < score:
+                if not high_score or int(high_score[0]) < score:
                     await set_score(player, str(score))
                     await message.channel.send(f'GAME OVER :space_invader:\nYour score: {str(score)} **BEST SCORE!**\nBetter luck next time :blush:! Use $play to retry.')
                 else:
@@ -189,11 +189,12 @@ async def on_message(message: discord.Message):
     if message.author == client.user:
         return
     else:
-        if message.content.startswith('$hello'):
-            await message.channel.send("Hello! I'm the Retro Bot. Use $help command to view my abilities")
-        elif message.content.startswith('$help'):
+        prefix = getenv("DISCORD_PREFIX")
+        if message.content.startswith(f'{prefix}hello'):
+            await message.channel.send("Hello! I'm the bot. Use $help command to view my abilities")
+        elif message.content.startswith(f'{prefix}help'):
             await message.channel.send("Sorry, I cannot help you :sweat: but if you want to play SPACE INVADERS, use $play")
-        elif message.content.startswith('$stop'):
+        elif message.content.startswith(f'{prefix}stop'):
             if playing:
                 if player == message.author:
                     await message.channel.send('Stopped playing SPACE INVADERS :space_invader:\nUse $play to play again.')
@@ -206,7 +207,7 @@ async def on_message(message: discord.Message):
                     await message.channel.send('Only '+player.display_name+' can stop playing :space_invader: as he started!')
             else:
                 await message.channel.send('Not playing!\nUse $play to start playing.')
-        elif message.content.startswith('$play'):
+        elif message.content.startswith(f'{prefix}play'):
             for i in room:
                 for ii in range(0, 9):
                     room[i].pop(ii)
@@ -218,13 +219,13 @@ async def on_message(message: discord.Message):
                 await message.channel.send('Already playing!\nUse $stop to stop playing.')
             else:
                 await updater(message)
-        elif message.content.startswith('$leaderboard'):
+        elif message.content.startswith(f'{prefix}leaderboard'):
             list = await get_all_scores()
             if len(list) < 1:
                 return await message.channel.send("The leaderboard is empty")
             else:
                 embed = discord.Embed(title="Leaderboard")
-                embed.description = "This is the highest score"
+                embed.description = "This is the list of players' highest score"
                 for i in list:
                     user_id = i[0]
                     scores = i[1]
