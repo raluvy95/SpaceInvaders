@@ -7,6 +7,10 @@ load_dotenv()
 from os import getenv
 from src.sqlite import get_all_scores, get_score, set_score
 
+if getenv("DEBUGGING") == '1':
+    import logging
+    logging.basicConfig(level='INFO')
+
 client = discord.Client()
 playing = False
 sent: discord.Message = discord.Message
@@ -101,7 +105,7 @@ async def gamemap(message: discord.Message):
                 high_score = await get_score(player)
                 if not high_score or int(high_score[0]) < score:
                     await set_score(player, str(score))
-                    await message.channel.send(f'GAME OVER :space_invader:\nYour score: {str(score)} **BEST SCORE!**\nBetter luck next time :blush:! Use $play to retry.')
+                    await message.channel.send(f'GAME OVER :space_invader:\nYour score: {str(score)} **BEST SCORE!**\nBetter luck next time :blush:! Use {getenv("DISCORD_PREFIX")}play to retry.')
                 else:
                     await message.channel.send('GAME OVER :space_invader:\nYour score: '+str(score)+'\nBetter luck next time :blush:! Use $play to retry.')
                 playing = False
@@ -176,7 +180,7 @@ async def updater(message: discord.Message):
 
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    print(f'We have logged in as {client.user}')
 
 
 @client.event
@@ -191,13 +195,13 @@ async def on_message(message: discord.Message):
     else:
         prefix = getenv("DISCORD_PREFIX")
         if message.content.startswith(f'{prefix}hello'):
-            await message.channel.send("Hello! I'm the bot. Use $help command to view my abilities")
+            await message.channel.send(f"Hello! I'm the bot. Use {prefix}help command to view my abilities")
         elif message.content.startswith(f'{prefix}help'):
-            await message.channel.send("Sorry, I cannot help you :sweat: but if you want to play SPACE INVADERS, use $play")
+            await message.channel.send(f"Sorry, I cannot help you :sweat: but if you want to play SPACE INVADERS, use {prefix}play")
         elif message.content.startswith(f'{prefix}stop'):
             if playing:
                 if player == message.author:
-                    await message.channel.send('Stopped playing SPACE INVADERS :space_invader:\nUse $play to play again.')
+                    await message.channel.send(f'Stopped playing SPACE INVADERS :space_invader:\nUse {prefix}play to play again.')
                     await sent.delete()
                     playing = False
                     sent = discord.Message
@@ -206,7 +210,7 @@ async def on_message(message: discord.Message):
                 else:
                     await message.channel.send('Only '+player.display_name+' can stop playing :space_invader: as he started!')
             else:
-                await message.channel.send('Not playing!\nUse $play to start playing.')
+                await message.channel.send(f'Not playing!\nUse {prefix}play to start playing.')
         elif message.content.startswith(f'{prefix}play'):
             for i in room:
                 for ii in range(0, 9):
@@ -216,7 +220,7 @@ async def on_message(message: discord.Message):
             room[9].insert(5, stuff['player'])
             playerPos = []
             if playing:
-                await message.channel.send('Already playing!\nUse $stop to stop playing.')
+                await message.channel.send(f'Already playing!\nUse {prefix}stop to stop playing.')
             else:
                 await updater(message)
         elif message.content.startswith(f'{prefix}leaderboard'):
@@ -226,11 +230,13 @@ async def on_message(message: discord.Message):
             else:
                 embed = discord.Embed(title="Leaderboard")
                 embed.description = "This is the list of players' highest score"
-                for i in list:
+                for i in list[:10]:
                     user_id = i[0]
                     scores = i[1]
                     embed.add_field(name=f"Score - {scores}", value=f"<@!{user_id}>")
                 return await message.channel.send(embed=embed)
+        elif message.content.startswith(f'{prefix}ping'):
+            return await message.channel.send(f"**Pong!** {round(client.latency * 1000)}ms")
 
 
 
