@@ -16,6 +16,8 @@ It is my first discord bot... so please give any suggestions to improve it :]
 
 * `$leaderboard`: Show players' high scores list.
 
+* `$ping`: Pong!
+
 # 🔨 Install instructions
 You need to have `python 3.8` or up to get your
 bot working.<br>
