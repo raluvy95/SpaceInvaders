@@ -9,7 +9,7 @@ print(Fore.YELLOW + Style.BRIGHT + "A Discord bot that lets you play space invad
       + Style.RESET_ALL)
 
 if not os.path.isfile(".env"):
-    print(Fore.CYAN + "Looks like you're running the bot for first time.")
+    print(Fore.CYAN + "Looks like you're running the bot for the first time.")
     print("Before continuing the configuration step, I need your token" + Style.RESET_ALL)
     token = None
     while True:
@@ -27,12 +27,12 @@ if not os.path.isfile(".env"):
             break
     print(Fore.GREEN + "Your token is valid!")
     prefix = input(
-        Fore.WHITE + "Your bot's prefix (leave empty to default prefix): ")
+        Fore.WHITE + "Your bot's prefix (leave empty for the default prefix): ")
     if not prefix:
         prefix = "$"
     print(Fore.BLUE + "Configuring...")
     with open('.env', 'x') as env:
-        env.write(f"# This is generated configuration. Don't try to edit unless if you know what are you doing\nDISCORD_TOKEN={token}\nDISCORD_PREFIX={prefix}\nDEBUGGING=0")
+        env.write(f"# This is a generated configuration. Don't try to edit unless you know what you're doing\nDISCORD_TOKEN={token}\nDISCORD_PREFIX={prefix}\nDEBUGGING=0")
         env.close()
     print(Fore.GREEN + "Finished!")
 
