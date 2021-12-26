@@ -10,7 +10,7 @@ print(Fore.YELLOW + Style.BRIGHT + "A Discord bot that lets you play space invad
 
 if not os.path.isfile(".env"):
     print(Fore.CYAN + "Looks like you're running the bot for the first time.")
-    print("Before continuing the configuration step, I need your token" + Style.RESET_ALL)
+    print("Before continuing the configuration steps, I need your token" + Style.RESET_ALL)
     token = None
     while True:
         try:
