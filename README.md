@@ -1,4 +1,4 @@
-# 👾 space_Invaders 👾
+# 👾 SpaceInvaders 👾
 A discord bot that lets you play Space invaders.
 
 This is my first discord bot... so please give any suggestions you have to improve it :]
